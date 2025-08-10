@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Container,
   Box,
@@ -17,10 +17,10 @@ import {
   MenuItem,
   Alert,
   Snackbar,
-} from '@mui/material';
-import { Add, Save, Clear } from '@mui/icons-material';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useAppDispatch, useAppSelector } from '../hooks/redux';
+} from "@mui/material";
+import { Add, Save, Clear } from "@mui/icons-material";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
   setFormName,
   addField,
@@ -29,40 +29,42 @@ import {
   reorderFields,
   saveForm,
   clearCurrentForm,
-} from '../store/formBuilderSlice';
-import { FormField } from '../types/form';
-import FieldEditor from '../components/FieldEditor';
+} from "../store/formBuilderSlice";
+import { FormField } from "../types/form";
+import FieldEditor from "../components/FieldEditor";
 
 const CreatePage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { currentForm } = useAppSelector(state => state.formBuilder);
+  const { currentForm } = useAppSelector((state) => state.formBuilder);
   const [addFieldDialogOpen, setAddFieldDialogOpen] = useState(false);
-  const [newFieldType, setNewFieldType] = useState<FormField['type']>('text');
+  const [newFieldType, setNewFieldType] = useState<FormField["type"]>("text");
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const fieldTypes = [
-    { value: 'text', label: 'Text Input' },
-    { value: 'number', label: 'Number Input' },
-    { value: 'textarea', label: 'Textarea' },
-    { value: 'select', label: 'Select Dropdown' },
-    { value: 'radio', label: 'Radio Buttons' },
-    { value: 'checkbox', label: 'Checkbox' },
-    { value: 'date', label: 'Date Picker' },
+    { value: "text", label: "Text Input" },
+    { value: "number", label: "Number Input" },
+    { value: "textarea", label: "Textarea" },
+    { value: "select", label: "Select Dropdown" },
+    { value: "radio", label: "Radio Buttons" },
+    { value: "checkbox", label: "Checkbox" },
+    { value: "date", label: "Date Picker" },
   ];
 
   const handleAddField = () => {
     const newField = {
       type: newFieldType,
-      label: `New ${fieldTypes.find(t => t.value === newFieldType)?.label}`,
+      label: `New ${fieldTypes.find((t) => t.value === newFieldType)?.label}`,
       required: false,
       defaultValue: null,
       validationRules: [],
-      options: ['select', 'radio'].includes(newFieldType) ? [
-        { label: 'Option 1', value: 'option1' },
-        { label: 'Option 2', value: 'option2' },
-      ] : undefined,
+      options: ["select", "radio"].includes(newFieldType)
+        ? [
+            { label: "Option 1", value: "option1" },
+            { label: "Option 2", value: "option2" },
+          ]
+        : undefined,
       isDerived: false,
     };
 
@@ -72,26 +74,26 @@ const CreatePage: React.FC = () => {
 
   const handleSaveForm = () => {
     if (currentForm.fields.length === 0) {
-      setSnackbarMessage('Please add at least one field before saving');
+      setSnackbarMessage("Please add at least one field before saving");
       setSnackbarOpen(true);
       return;
     }
 
     if (!currentForm.name.trim()) {
-      setSnackbarMessage('Please provide a form name');
+      setSnackbarMessage("Please provide a form name");
       setSnackbarOpen(true);
       return;
     }
 
     dispatch(saveForm());
-    setSnackbarMessage('Form saved successfully!');
+    setSnackbarMessage("Form saved successfully!");
     setSnackbarOpen(true);
     setSaveDialogOpen(false);
   };
 
   const handleClearForm = () => {
     dispatch(clearCurrentForm());
-    setSnackbarMessage('Form cleared');
+    setSnackbarMessage("Form cleared");
     setSnackbarOpen(true);
   };
 
@@ -108,7 +110,7 @@ const CreatePage: React.FC = () => {
   return (
     <Container maxWidth="lg">
       <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
           <Typography variant="h4" sx={{ flexGrow: 1 }}>
             Form Builder
           </Typography>
@@ -140,7 +142,7 @@ const CreatePage: React.FC = () => {
       </Paper>
 
       {currentForm.fields.length === 0 ? (
-        <Paper elevation={2} sx={{ p: 4, textAlign: 'center' }}>
+        <Paper elevation={2} sx={{ p: 4, textAlign: "center" }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
             No fields added yet
           </Typography>
@@ -153,10 +155,14 @@ const CreatePage: React.FC = () => {
           <Droppable droppableId="fields">
             {(provided) => (
               <Box {...provided.droppableProps} ref={provided.innerRef}>
-                {currentForm.fields
+                {[...currentForm.fields] // make a shallow copy to avoid state mutation
                   .sort((a, b) => a.order - b.order)
                   .map((field, index) => (
-                    <Draggable key={field.id} draggableId={field.id} index={index}>
+                    <Draggable
+                      key={field.id}
+                      draggableId={field.id}
+                      index={index}
+                    >
                       {(provided) => (
                         <div
                           ref={provided.innerRef}
@@ -164,7 +170,9 @@ const CreatePage: React.FC = () => {
                         >
                           <FieldEditor
                             field={field}
-                            onUpdate={(updates) => dispatch(updateField({ id: field.id, updates }))}
+                            onUpdate={(updates) =>
+                              dispatch(updateField({ id: field.id, updates }))
+                            }
                             onDelete={() => dispatch(deleteField(field.id))}
                             dragHandleProps={provided.dragHandleProps}
                           />
@@ -182,21 +190,26 @@ const CreatePage: React.FC = () => {
       <Fab
         color="primary"
         aria-label="add field"
-        sx={{ position: 'fixed', bottom: 24, right: 24 }}
+        sx={{ position: "fixed", bottom: 24, right: 24 }}
         onClick={() => setAddFieldDialogOpen(true)}
       >
         <Add />
       </Fab>
 
       {/* Add Field Dialog */}
-      <Dialog open={addFieldDialogOpen} onClose={() => setAddFieldDialogOpen(false)}>
+      <Dialog
+        open={addFieldDialogOpen}
+        onClose={() => setAddFieldDialogOpen(false)}
+      >
         <DialogTitle>Add New Field</DialogTitle>
         <DialogContent>
           <FormControl fullWidth margin="normal">
             <InputLabel>Field Type</InputLabel>
             <Select
               value={newFieldType}
-              onChange={(e) => setNewFieldType(e.target.value as FormField['type'])}
+              onChange={(e) =>
+                setNewFieldType(e.target.value as FormField["type"])
+              }
             >
               {fieldTypes.map((type) => (
                 <MenuItem key={type.value} value={type.value}>
@@ -208,7 +221,9 @@ const CreatePage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAddFieldDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddField} variant="contained">Add Field</Button>
+          <Button onClick={handleAddField} variant="contained">
+            Add Field
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -228,7 +243,9 @@ const CreatePage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleSaveForm} variant="contained">Save</Button>
+          <Button onClick={handleSaveForm} variant="contained">
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -236,7 +253,7 @@ const CreatePage: React.FC = () => {
         open={snackbarOpen}
         autoHideDuration={4000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert severity="success" onClose={() => setSnackbarOpen(false)}>
           {snackbarMessage}
